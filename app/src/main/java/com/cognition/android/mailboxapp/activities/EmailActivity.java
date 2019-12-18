@@ -1,9 +1,7 @@
 package com.cognition.android.mailboxapp.activities;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
@@ -30,34 +28,17 @@ import com.cognition.android.mailboxapp.R;
 import com.cognition.android.mailboxapp.models.Message;
 import com.cognition.android.mailboxapp.models.Message_Table;
 import com.cognition.android.mailboxapp.utils.Utils;
-import com.google.api.client.extensions.android.http.AndroidHttp;
-import com.google.api.client.googleapis.extensions.android.gms.auth.GoogleAccountCredential;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.Base64;
-import com.google.api.client.util.ExponentialBackOff;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.transitionseverywhere.TransitionManager;
 import com.wang.avi.AVLoadingIndicatorView;
-
-import com.google.api.services.gmail.Gmail;
-//import com.google.api.services.gmail.model.Message;
-import com.google.api.services.gmail.model.MessagePart;
-import com.google.api.services.gmail.model.MessagePartBody;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
-
-import static com.cognition.android.mailboxapp.activities.MainActivity.PREF_ACCOUNT_NAME;
-import static com.cognition.android.mailboxapp.activities.MainActivity.SCOPES;
 
 public class EmailActivity extends AppCompatActivity {
 
@@ -69,9 +50,6 @@ public class EmailActivity extends AppCompatActivity {
     AVLoadingIndicatorView avLoadingIndicatorView;
     LinearLayoutCompat lytError;
     AppCompatButton btnRetry;
-    GoogleAccountCredential mCredential;
-    Gmail mService;
-    SharedPreferences sharedPref;
 
     Utils mUtils;
     Message mMessage = null;
@@ -81,38 +59,12 @@ public class EmailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_email);
 
-        mService = null;
-
-        mCredential = GoogleAccountCredential.usingOAuth2(
-                getApplicationContext(), Arrays.asList(SCOPES))
-                .setBackOff(new ExponentialBackOff());
-        sharedPref = EmailActivity.this.getSharedPreferences(getString(R.string.preferences_file_name), Context.MODE_PRIVATE);
         mUtils = new Utils(EmailActivity.this);
 
-        String accountName = sharedPref.getString(PREF_ACCOUNT_NAME, null);
-        if (accountName != null) {
-
-                    mCredential.setSelectedAccountName(accountName);
-
-            HttpTransport transport = AndroidHttp.newCompatibleTransport();
-            JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
-            mService = new com.google.api.services.gmail.Gmail.Builder(
-                    transport, jsonFactory, mCredential)
-                .setApplicationName("MailBox App")
-                .build();
-        }
-
-
         int messageId = getIntent().getIntExtra("messageId", -1);
-        String messageGmailId = getIntent().getStringExtra("messageGmailId");
-
+        String attachmentData = getIntent().getStringExtra("attachmentData");
         mMessage = SQLite.select().from(Message.class).where(Message_Table.id.eq(messageId)).querySingle();
 
-        try {
-            getAttachments(mService, "me", messageGmailId);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         if (mMessage != null) {
             initViews();
             setUpWebView();
@@ -331,66 +283,5 @@ public class EmailActivity extends AppCompatActivity {
         }
 
         return new String[]{null, null};
-    }
-
-    /**
-     * Get email data
-     *
-     * @param parts JSONArray
-     * @return String[]
-     * @throws JSONException                JSONException
-     * @throws UnsupportedEncodingException UnsupportedEncodingException
-     */
-    private String[] getDataAttachment(JSONArray parts) throws JSONException, UnsupportedEncodingException {
-        for (int i = 0; i < parts.length(); i++) {
-            JSONObject part = new JSONObject(parts.getString(i));
-            if (part.has("partId"))
-                return getData(new JSONArray(part.getString("parts")));
-            else {
-                if (part.getString("mimeType").equals("application/octet-stream"))
-                    return new String[]{
-                            part.getString("mimeType"),
-                            new String(
-                                    Base64.decodeBase64(part.getJSONObject("body").getString("data")),
-                                    "UTF-8"
-                            )
-                    };
-            }
-        }
-
-        for (int i = 0; i < parts.length(); i++) {
-            JSONObject part = new JSONObject(parts.getString(i));
-            if (part.getString("mimeType").equals("text/plain"))
-                return new String[]{
-                        part.getString("mimeType"),
-                        new String(
-                                Base64.decodeBase64(part.getJSONObject("body").getString("data")),
-                                "UTF-8"
-                        )
-                };
-        }
-
-        return new String[]{null, null};
-    }
-
-    public static void getAttachments(Gmail service, String userId, String messageId)
-            throws IOException {
-        com.google.api.services.gmail.model.Message message = service.users().messages().get(userId, messageId).execute();
-        List<MessagePart> parts = message.getPayload().getParts();
-        for (MessagePart part : parts) {
-            if (part.getFilename() != null && part.getFilename().length() > 0) {
-                String filename = part.getFilename();
-                String attId = part.getBody().getAttachmentId();
-                MessagePartBody attachPart = service.users().messages().attachments().
-                        get(userId, messageId, attId).execute();
-
-//                Base64 base64Url = new Base64(true);
-//                byte[] fileByteArray = base64url.decodeBase64(attachPart.getData());
-//                FileOutputStream fileOutFile =
-//                        new FileOutputStream("directory_to_store_attachments" + filename);
-//                fileOutFile.write(fileByteArray);
-//                fileOutFile.close();
-            }
-        }
     }
 }

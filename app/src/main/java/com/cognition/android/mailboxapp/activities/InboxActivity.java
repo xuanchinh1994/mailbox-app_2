@@ -40,9 +40,13 @@ import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.ListMessagesResponse;
+import com.google.api.services.gmail.model.MessagePart;
+import com.google.api.services.gmail.model.MessagePartBody;
 import com.google.api.services.gmail.model.MessagePartHeader;
 import com.raizlabs.android.dbflow.sql.language.Delete;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -276,6 +280,8 @@ public class InboxActivity extends AppCompatActivity {
         private boolean clear;
         private Exception mLastError = null;
         private String attId;
+        private String stringData;
+
 
         GetEmailsTask(boolean clear) {
             this.clear = clear;
@@ -314,17 +320,25 @@ public class InboxActivity extends AppCompatActivity {
                                 messagePartHeader.getName(), messagePartHeader.getValue()
                         );
 
-//                    if (actualMessage.getPayload().getFilename() != null && actualMessage.getPayload().getFilename().length() > 0) {
-//                        String filename = actualMessage.getPayload().getFilename();
-//                        attId = actualMessage.getPayload().getBody().getAttachmentId();
-//                    } else {
-//                        attId = NULL ;
-//                    }
-
+                    JSONObject actualMessageJSON = new JSONObject(actualMessage.getPayload());
+                    stringData = null;
+                    if (actualMessageJSON.has("parts")){
+                        List<MessagePart> parts = actualMessage.getPayload().getParts();
+                        for (MessagePart part : parts) {
+                            if (part.getFilename() != null && part.getFilename().length() > 0) {
+                                String filename = part.getFilename();
+                                String attId = part.getBody().getAttachmentId();
+                                MessagePartBody attachPart = mService.users().messages().attachments().
+                                        get(user, actualMessage.getId(), attId).execute();
+                                stringData = attachPart.getData();
+                            }
+                        }
+                    }
 
                     Message newMessage = new Message(
                             actualMessage.getId(),
                             actualMessage.getPayload().getBody().getAttachmentId(),
+                            stringData,
                             actualMessage.getLabelIds(),
                             actualMessage.getSnippet(),
                             actualMessage.getPayload().getMimeType(),

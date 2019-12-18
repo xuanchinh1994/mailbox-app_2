@@ -19,8 +19,9 @@ public class Message extends BaseModel {
     @PrimaryKey(autoincrement = true)
     private int id;
     private int message_id;
-    private String message_gmail_id;
+    private String messageGmailId;
     private String attachmentId;
+    private String attachmentData;
     private String labelsJson;
     private String snippet;
     private String mimetype;
@@ -44,9 +45,10 @@ public class Message extends BaseModel {
     public Message() {
     }
 
-    public Message(String message_gmail_id,String attachmentId,List<String> labels, String snippet, String mimetype, Map<String, String> headers, List<MessagePart> parts, long timestamp, int color, MessagePart parentPart) throws JSONException {
-        this.message_gmail_id = message_gmail_id;
+    public Message(String messageGmailId, String attachmentId , String attachmentData , List<String> labels, String snippet, String mimetype, Map<String, String> headers, List<MessagePart> parts, long timestamp, int color, MessagePart parentPart) throws JSONException {
+        this.messageGmailId = messageGmailId;
         this.attachmentId = attachmentId;
+        this.attachmentData = attachmentData;
         this.labels = labels;
         this.snippet = snippet;
         this.mimetype = mimetype;
@@ -212,12 +214,12 @@ public class Message extends BaseModel {
         this.parentPartJson = parentPartJson;
     }
 
-    public String getMessage_gmail_id() {
-        return message_gmail_id;
+    public String getMessageGmailId() {
+        return messageGmailId;
     }
 
-    public void setMessage_gmail_id(String message_gmail_id) {
-        this.message_gmail_id = message_gmail_id;
+    public void setMessageGmailId(String messageGmailId) {
+        this.messageGmailId = messageGmailId;
     }
 
     public String getAttachmentId() {
@@ -226,5 +228,13 @@ public class Message extends BaseModel {
 
     public void setAttachmentId(String attachmentId) {
         this.attachmentId = attachmentId;
+    }
+
+    public String getAttachmentData() {
+        return attachmentData;
+    }
+
+    public void setAttachmentData(String attachmentData) {
+        this.attachmentData = attachmentData;
     }
 }

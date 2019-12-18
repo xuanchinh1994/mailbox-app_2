@@ -75,9 +75,10 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             public void onClick(View v) {
                 if (mUtils.isDeviceOnline()) {
                     Intent intent = new Intent(mContext, EmailActivity.class);
-                    String test = message.getMessage_gmail_id();
+                    String test = message.getMessageGmailId();
                     intent.putExtra("messageId", message.getId());
-                    intent.putExtra("messageGmailId", message.getMessage_gmail_id());
+                    intent.putExtra("messageGmailId", message.getMessageGmailId());
+                    intent.putExtra("attachmentData", message.getAttachmentData());
                     mContext.startActivity(intent);
                 } else
                     mUtils.showSnackbar(parent, mContext.getString(R.string.device_is_offline));
