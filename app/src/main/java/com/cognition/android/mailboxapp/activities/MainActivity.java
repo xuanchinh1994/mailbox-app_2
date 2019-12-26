@@ -15,6 +15,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.view.View;
 
+import com.cognition.android.mailboxapp.Decoder;
 import com.cognition.android.mailboxapp.R;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
@@ -29,12 +30,12 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity extends AppCompatActivity {
 
-    AppCompatButton btnChooseAccount;
+    AppCompatButton btnChooseAccount,btnTestdecoder;
 
     GoogleAccountCredential mCredential;
     SharedPreferences sharedPref;
 
-    public static final String TAG = "MailBoxApp";
+    public static final String TAG = "SmartDoorBell";
     public static final String[] SCOPES = {GmailScopes.MAIL_GOOGLE_COM};
     public static final String PREF_ACCOUNT_NAME = "accountName";
 
@@ -75,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
     }
 
     /**

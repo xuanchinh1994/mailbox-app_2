@@ -2,6 +2,8 @@ package com.cognition.android.mailboxapp.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
@@ -23,12 +25,15 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.ImageView;
 
+import com.cognition.android.mailboxapp.DecoderWrapper;
 import com.cognition.android.mailboxapp.R;
 import com.cognition.android.mailboxapp.models.Message;
 import com.cognition.android.mailboxapp.models.Message_Table;
 import com.cognition.android.mailboxapp.utils.Utils;
-import com.google.api.client.util.Base64;
+
+import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
 import com.raizlabs.android.dbflow.sql.language.SQLite;
 import com.transitionseverywhere.TransitionManager;
 import com.wang.avi.AVLoadingIndicatorView;
@@ -37,10 +42,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Locale;
 
-public class EmailActivity extends AppCompatActivity {
+public class EmailActivity extends AppCompatActivity  {
 
     CoordinatorLayout lytParent;
     Toolbar toolbar;
@@ -50,9 +58,45 @@ public class EmailActivity extends AppCompatActivity {
     AVLoadingIndicatorView avLoadingIndicatorView;
     LinearLayoutCompat lytError;
     AppCompatButton btnRetry;
+    ImageView imageView;
+    String attachmentData;
 
     Utils mUtils;
     Message mMessage = null;
+
+    // Load library
+    static {
+        System.loadLibrary("bpg_decoder");
+    };
+
+    public static byte[] toByteArray(InputStream input) throws IOException
+    {
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        while ((bytesRead = input.read(buffer)) != -1)
+        {
+            output.write(buffer, 0, bytesRead);
+        }
+        return output.toByteArray();
+    }
+
+    public Bitmap getDecodedBitmap(String resourceId){
+        Bitmap bm = null;
+//        InputStream is = getResources().openRawResource(resourceId);
+        Base64 base64Url = new Base64(true);
+//        byte[] fileByteArray = base64Url.decode(resourceId);
+        byte[] byteArray = base64Url.decode(resourceId);
+//            byte[] byteArray = toByteArray(is);
+        byte[] decBuffer = null;
+        int decBufferSize = 0;
+        decBuffer = DecoderWrapper.decodeBuffer(byteArray, byteArray.length);
+        decBufferSize = decBuffer.length;
+        if(decBuffer != null){
+            bm = BitmapFactory.decodeByteArray(decBuffer, 0, decBufferSize);
+        }
+        return bm;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,7 +106,7 @@ public class EmailActivity extends AppCompatActivity {
         mUtils = new Utils(EmailActivity.this);
 
         int messageId = getIntent().getIntExtra("messageId", -1);
-        String attachmentData = getIntent().getStringExtra("attachmentData");
+        attachmentData = getIntent().getStringExtra("attachmentData");
         mMessage = SQLite.select().from(Message.class).where(Message_Table.id.eq(messageId)).querySingle();
 
         if (mMessage != null) {
@@ -88,6 +132,7 @@ public class EmailActivity extends AppCompatActivity {
         avLoadingIndicatorView = findViewById(R.id.aviLoadingIndicator);
         lytError = findViewById(R.id.lytError);
         btnRetry = findViewById(R.id.btnRetry);
+        imageView  = findViewById(R.id.imageInMail);
 
         toolbar.setTitle(mMessage.getSubject());
         toolbar.setNavigationIcon(R.drawable.ic_arrow_back_white_24dp);
@@ -105,6 +150,13 @@ public class EmailActivity extends AppCompatActivity {
 
         android.graphics.drawable.GradientDrawable gradientDrawable = (android.graphics.drawable.GradientDrawable) lytFromPreviewParent.getBackground();
         gradientDrawable.setColor(mMessage.getColor());
+
+        if (attachmentData!= null){
+            Bitmap bm = getDecodedBitmap(attachmentData);
+            if(bm != null) {
+                imageView.setImageBitmap(bm);
+            }
+        }
 
         WebSettings myWebSettings = myWebView.getSettings();
         myWebSettings.setJavaScriptEnabled(true);

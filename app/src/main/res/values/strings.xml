@@ -1,13 +1,13 @@
 <resources>
-    <string name="app_name">MailBox App</string>
+    <string name="app_name">SMART DOOR BELL</string>
     <string name="choose_account">Choose Account</string>
     <string name="preferences_file_name">com.cognition.android.mailboxapp.PREFERENCES_FILE</string>
     <string name="this_app_requires_google_play_services">This app requires Google Play Services. Please install Google Play Services on your device and relaunch this app.</string>
-    <string name="inbox">Inbox</string>
+    <string name="inbox">SMART DOOR BELL</string>
     <string name="search">Search</string>
     <string name="default_m">M</string>
     <string name="from">From</string>
-    <string name="default_date">21/04/2018</string>
+    <string name="default_date">21/04/2018 18:25:16</string>
     <string name="subject">Subject</string>
     <string name="snippet">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam. Sed nisi. Nulla quis sem at nibh elementum imperdiet. Duis sagittis ipsum. Praesent mauris. Fusce nec tellus sed augue semper porta. Mauris massa. Vestibulum lacinia arcu eget nulla.</string>
     <string name="app_requires_auth">This app requires your authorization to access your gmail account so that it can work.</string>
@@ -24,4 +24,16 @@
     <string name="sending">Sending…</string>
     <string name="fetch_failed">Fetch failed</string>
     <string name="invalid_email">Invalid email address</string>
+    <string name="hello_world">Hello world!</string>
+    <string name="action_settings">Settings</string>
+    <string name="change_image">Load Image</string>
+    <string name="img_description">Decoded bgp image</string>
+    <string name="picture_prompt">Choose a picture</string>
+    <string-array name="bpg_arrays">
+        <item>clock</item>
+        <item>bear</item>
+        <item>squirrel</item>
+        <item>cats</item>
+        <item>kayac</item>
+    </string-array>
 </resources>

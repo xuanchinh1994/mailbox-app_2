@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -23,7 +25,9 @@ import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 
+import com.cognition.android.mailboxapp.DecoderWrapper;
 import com.cognition.android.mailboxapp.R;
 import com.cognition.android.mailboxapp.models.Message;
 import com.cognition.android.mailboxapp.utils.EndlessRecyclerViewScrollListener;
@@ -37,6 +41,7 @@ import com.google.api.client.googleapis.extensions.android.gms.auth.UserRecovera
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.jackson2.JacksonFactory;
+import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
 import com.google.api.client.util.ExponentialBackOff;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.ListMessagesResponse;
@@ -48,6 +53,9 @@ import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import org.json.JSONObject;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -82,11 +90,48 @@ public class InboxActivity extends AppCompatActivity {
     String pageToken = null;
     boolean isFetching = false;
 
+    // Load library
+    static {
+        System.loadLibrary("bpg_decoder");
+    };
+
+    public static byte[] toByteArray(InputStream input) throws IOException
+    {
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        while ((bytesRead = input.read(buffer)) != -1)
+        {
+            output.write(buffer, 0, bytesRead);
+        }
+        return output.toByteArray();
+    }
+
+    public Bitmap getDecodedBitmap(String resourceId){
+        Bitmap bm = null;
+//        InputStream is = getResources().openRawResource(resourceId);
+        Base64 base64Url = new Base64(true);
+//        byte[] fileByteArray = base64Url.decode(resourceId);
+        byte[] byteArray = base64Url.decode(resourceId);
+//            byte[] byteArray = toByteArray(is);
+        byte[] decBuffer = null;
+        int decBufferSize = 0;
+        decBuffer = DecoderWrapper.decodeBuffer(byteArray, byteArray.length);
+        decBufferSize = decBuffer.length;
+        if(decBuffer != null){
+            bm = BitmapFactory.decodeByteArray(decBuffer, 0, decBufferSize);
+        }
+        return bm;
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_inbox);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         // Initialize credentials and service object.
         mCredential = GoogleAccountCredential.usingOAuth2(
@@ -104,7 +149,7 @@ public class InboxActivity extends AppCompatActivity {
             JsonFactory jsonFactory = JacksonFactory.getDefaultInstance();
             mService = new com.google.api.services.gmail.Gmail.Builder(
                     transport, jsonFactory, mCredential)
-                    .setApplicationName("MailBox App")
+                    .setApplicationName("SMART DOOR BELL")
                     .build();
 
         } else {
@@ -182,29 +227,29 @@ public class InboxActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         refreshMessages = findViewById(R.id.refreshMessages);
         listMessages = findViewById(R.id.listMessages);
-        fabCompose = findViewById(R.id.fabCompose);
+//        fabCompose = findViewById(R.id.fabCompose);
 
         toolbar.inflateMenu(R.menu.menu_inbox);
 
-        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-        SearchView searchView = (SearchView) toolbar.getMenu().findItem(R.id.action_search).getActionView();
-        searchView.setQueryHint(getString(R.string.search));
-        searchView.setSearchableInfo(searchManager != null ? searchManager.getSearchableInfo(getComponentName()) : null);
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                messagesAdapter.getFilter().filter(query);
-
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                messagesAdapter.getFilter().filter(newText);
-
-                return true;
-            }
-        });
+//        SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+//        SearchView searchView = (SearchView) toolbar.getMenu().findItem(R.id.action_search).getActionView();
+//        searchView.setQueryHint(getString(R.string.search));
+//        searchView.setSearchableInfo(searchManager != null ? searchManager.getSearchableInfo(getComponentName()) : null);
+//        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+//            @Override
+//            public boolean onQueryTextSubmit(String query) {
+//                messagesAdapter.getFilter().filter(query);
+//
+//                return true;
+//            }
+//
+//            @Override
+//            public boolean onQueryTextChange(String newText) {
+//                messagesAdapter.getFilter().filter(newText);
+//
+//                return true;
+//            }
+//        });
 
         refreshMessages.setColorSchemeResources(R.color.colorPrimary);
         refreshMessages.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
@@ -229,12 +274,12 @@ public class InboxActivity extends AppCompatActivity {
         });
         listMessages.setAdapter(messagesAdapter);
 
-        fabCompose.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(InboxActivity.this, ComposeActivity.class));
-            }
-        });
+//        fabCompose.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                startActivity(new Intent(InboxActivity.this, ComposeActivity.class));
+//            }
+//        });
     }
 
     /**
@@ -305,7 +350,7 @@ public class InboxActivity extends AppCompatActivity {
                     }
                 });
                 String user = "me";
-                String query = "in:inbox subject:HSBC";
+                String query = "in:inbox subject:[SMART_DOORBEEL]";
                 ListMessagesResponse messageResponse = mService.users().messages().list(user).setQ(query).setMaxResults(20L).setPageToken(InboxActivity.this.pageToken).execute();
                 InboxActivity.this.pageToken = messageResponse.getNextPageToken();
 

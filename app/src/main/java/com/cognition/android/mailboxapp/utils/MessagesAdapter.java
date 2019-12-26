@@ -2,6 +2,8 @@ package com.cognition.android.mailboxapp.utils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.AppCompatTextView;
@@ -12,11 +14,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 
+import com.cognition.android.mailboxapp.DecoderWrapper;
 import com.cognition.android.mailboxapp.R;
 import com.cognition.android.mailboxapp.activities.EmailActivity;
 import com.cognition.android.mailboxapp.models.Message;
+import com.google.api.client.repackaged.org.apache.commons.codec.binary.Base64;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -30,11 +38,46 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
 
     private ViewGroup parent;
 
+    // Load library
+    static {
+        System.loadLibrary("bpg_decoder");
+    };
+
+    public static byte[] toByteArray(InputStream input) throws IOException
+    {
+        byte[] buffer = new byte[1024];
+        int bytesRead;
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        while ((bytesRead = input.read(buffer)) != -1)
+        {
+            output.write(buffer, 0, bytesRead);
+        }
+        return output.toByteArray();
+    }
+
+    public Bitmap getDecodedBitmap(String resourceId){
+        Bitmap bm = null;
+//        InputStream is = getResources().openRawResource(resourceId);
+        Base64 base64Url = new Base64(true);
+//        byte[] fileByteArray = base64Url.decode(resourceId);
+        byte[] byteArray = base64Url.decode(resourceId);
+//            byte[] byteArray = toByteArray(is);
+        byte[] decBuffer = null;
+        int decBufferSize = 0;
+        decBuffer = DecoderWrapper.decodeBuffer(byteArray, byteArray.length);
+        decBufferSize = decBuffer.length;
+        if(decBuffer != null){
+            bm = BitmapFactory.decodeByteArray(decBuffer, 0, decBufferSize);
+        }
+        return bm;
+    }
+
     class MessageViewHolder extends RecyclerView.ViewHolder {
 
         LinearLayoutCompat lytItemParent;
         ConstraintLayout lytFromPreviewParent;
         AppCompatTextView txtFromPreview, txtFrom, txtDate, txtSubject, txtSnippet;
+        ImageView imageViewList;
 
         public MessageViewHolder(View itemView) {
             super(itemView);
@@ -42,10 +85,11 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             lytItemParent = itemView.findViewById(R.id.lytItemParent);
             lytFromPreviewParent = itemView.findViewById(R.id.lytFromPreviewParent);
             txtFromPreview = itemView.findViewById(R.id.txtFromPreview);
-            txtFrom = itemView.findViewById(R.id.txtFrom);
+//            txtFrom = itemView.findViewById(R.id.txtFrom);
             txtDate = itemView.findViewById(R.id.txtDate);
-            txtSubject = itemView.findViewById(R.id.txtSubject);
-            txtSnippet = itemView.findViewById(R.id.txtSnippet);
+//            txtSubject = itemView.findViewById(R.id.txtSubject);
+//            txtSnippet = itemView.findViewById(R.id.txtSnippet);
+            imageViewList = itemView.findViewById(R.id.imageInList);
         }
     }
 
@@ -89,10 +133,16 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         gradientDrawable.setColor(message.getColor());
 
         holder.txtFromPreview.setText(message.getFrom().substring(0, 1).toUpperCase(Locale.ENGLISH));
-        holder.txtFrom.setText(message.getFrom());
+//        holder.txtFrom.setText(message.getFrom());
         holder.txtDate.setText(mUtils.timestampToDate(message.getTimestamp()));
-        holder.txtSubject.setText(message.getSubject());
-        holder.txtSnippet.setText(message.getSnippet());
+//        holder.txtSubject.setText(message.getSubject());
+//        holder.txtSnippet.setText(message.getSnippet());
+        if (message.getAttachmentData()!= null){
+            Bitmap bm = getDecodedBitmap(message.getAttachmentData());
+            if(bm != null) {
+                holder.imageViewList.setImageBitmap(bm);
+            }
+        }
     }
 
     @Override

@@ -52,8 +52,42 @@
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
+<!--                <android.support.v7.widget.AppCompatTextView-->
+<!--                android:id="@+id/txtFrom"-->
+<!--                style="@style/TextAppearance.AppCompat.Subhead"-->
+<!--                android:layout_width="0dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_gravity="center_vertical"-->
+<!--                android:layout_weight="0.7"-->
+<!--                android:ellipsize="end"-->
+<!--                android:fontFamily="sans-serif"-->
+<!--                android:maxLines="1"-->
+<!--                android:paddingEnd="5dp"-->
+<!--                android:paddingRight="5dp"-->
+<!--                android:singleLine="true"-->
+<!--                android:text="@string/from"-->
+<!--                android:textColor="@color/colorBlackText"-->
+<!--                tools:ignore="RtlSymmetry" />-->
+
+<!--                <android.support.v7.widget.AppCompatTextView-->
+<!--                    android:id="@+id/txtSubject"-->
+<!--                    style="@style/TextAppearance.AppCompat.Subhead"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center_vertical"-->
+<!--                    android:layout_weight="0.7"-->
+<!--                    android:ellipsize="end"-->
+<!--                    android:fontFamily="sans-serif"-->
+<!--                    android:maxLines="1"-->
+<!--                    android:paddingEnd="5dp"-->
+<!--                    android:paddingRight="5dp"-->
+<!--                    android:singleLine="true"-->
+<!--                    android:text="@string/from"-->
+<!--                    android:textColor="@color/colorBlackText"-->
+<!--                    tools:ignore="RtlSymmetry" />-->
+
                 <android.support.v7.widget.AppCompatTextView
-                    android:id="@+id/txtFrom"
+                    android:id="@+id/txtDate"
                     style="@style/TextAppearance.AppCompat.Subhead"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -65,25 +99,25 @@
                     android:paddingEnd="5dp"
                     android:paddingRight="5dp"
                     android:singleLine="true"
-                    android:text="@string/from"
+                    android:text="@string/default_date"
                     android:textColor="@color/colorBlackText"
                     tools:ignore="RtlSymmetry" />
 
-                <android.support.v7.widget.AppCompatTextView
-                    android:id="@+id/txtDate"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:layout_weight="0.3"
-                    android:ellipsize="end"
-                    android:fontFamily="sans-serif-light"
-                    android:gravity="end"
-                    android:maxLines="1"
-                    android:singleLine="true"
-                    android:text="@string/default_date"
-                    android:textColor="@color/colorBlackText"
-                    android:textSize="10sp"
-                    tools:ignore="SmallSp" />
+<!--                <android.support.v7.widget.AppCompatTextView-->
+<!--                    android:id="@+id/txtDate"-->
+<!--                    android:layout_width="0dp"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center_vertical"-->
+<!--                    android:layout_weight="0.3"-->
+<!--                    android:ellipsize="end"-->
+<!--                    android:fontFamily="sans-serif-light"-->
+<!--                    android:gravity="end"-->
+<!--                    android:maxLines="1"-->
+<!--                    android:singleLine="true"-->
+<!--                    android:text="@string/default_date"-->
+<!--                    android:textColor="@color/colorBlackText"-->
+<!--                    android:textSize="10sp"-->
+<!--                    tools:ignore="SmallSp" />-->
 
             </android.support.v7.widget.LinearLayoutCompat>
 
@@ -94,31 +128,30 @@
                 android:layout_marginTop="5dp"
                 android:orientation="vertical">
 
-                <android.support.v7.widget.AppCompatTextView
-                    android:id="@+id/txtSubject"
+                <android.support.v7.widget.AppCompatImageView
+                    android:id="@+id/imageInList"
+                    android:layout_marginTop="5dp"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="180dp"
                     android:layout_gravity="center_vertical"
-                    android:ellipsize="end"
-                    android:fontFamily="sans-serif-medium"
-                    android:maxLines="1"
-                    android:singleLine="true"
-                    android:text="@string/subject"
-                    android:textColor="@color/colorBlackText"
-                    android:textSize="13sp" />
+                    android:ellipsize="end"/>
 
-                <android.support.v7.widget.AppCompatTextView
-                    android:id="@+id/txtSnippet"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_vertical"
-                    android:ellipsize="end"
-                    android:fontFamily="sans-serif-light"
-                    android:maxLines="2"
-                    android:singleLine="false"
-                    android:text="@string/snippet"
-                    android:textColor="@color/colorBlackText"
-                    android:textSize="12sp" />
+<!--                <android.support.v7.widget.AppCompatTextView-->
+<!--                    android:id="@+id/txtSnippet"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_gravity="center_vertical"-->
+<!--                    android:ellipsize="end"-->
+<!--                    android:fontFamily="sans-serif-light"-->
+<!--                    android:maxLines="2"-->
+<!--                    android:singleLine="false"-->
+<!--                    android:text="@string/snippet"-->
+<!--                    android:textColor="@color/colorBlackText"-->
+<!--                    android:textSize="12sp" />-->
+<!--                <ImageView-->
+<!--                    android:id="@+id/imageInList"-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="match_parent"/>-->
 
             </android.support.v7.widget.LinearLayoutCompat>
 
